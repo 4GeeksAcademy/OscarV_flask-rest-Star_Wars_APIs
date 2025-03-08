@@ -13,7 +13,7 @@ from models import db, User, Planet, People , Favorite_Planet , Favorite_People
 
 # 1> pipenv run migrate # (to make the migrations)
 # 2> pipenv run upgrade  # (to update your databse with the migrations)
-#
+# 3> pipenv run start
 
 # https://redesigned-journey-pjp6gxqv494737x5w-3000.app.github.dev/user
 
@@ -210,18 +210,28 @@ def post_favorite_planet():
     return jsonify(response_body), 201
 
 
-#-------------------------------------GET-----ALL FAVORITE PLANET------------------------------------------------#
-#https://redesigned-journey-pjp6gxqv494737x5w-3000.app.github.dev/favorite/planet
+#-------------------------------------GET-----ALL FAVORITE PLANET------------------------------------------------# +++++
+#https://redesigned-journey-pjp6gxqv494737x5w-3000.app.github.dev/favorite/planet/1
 
-@app.route('/favorite/planet', methods=['GET'])
-def get_favorite_planet():
-    list_favorite_planet = Favorite_Planet.query.all()
+@app.route('/favorite/planet/<int:user_id>', methods=['GET'])
+def get_favorite_planet(user_id):
+    # print(user_id)
+    # user_id = 1
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg = "User not found, please check.."), 402
+
+    list_favorite_planet = Favorite_Planet.query.filter_by(user_id = user_id).all()
     obj_favorite_planet = [favorite.serialize() for favorite in list_favorite_planet]
+    # old code--solo se esta llamando a 1 usuario filtrado, old llama a todos
+    # list_favorite_planet = Favorite_Planet.query.all()
+    # obj_favorite_planet = [favorite.serialize() for favorite in list_favorite_planet]
     #print(obj_favorite_planet)
     
     response_body = {
-        "Favorite_planet":obj_favorite_planet
-    }
+        "msg": "Here is all your favorite Planets, enjoy",
+        "Favorite_planet": obj_favorite_planet
+            }
     return jsonify(response_body), 200
 
 #-------------------------------------POST-----FAVORITOS ---PEOPLE-------------------------------------------------#
@@ -253,15 +263,18 @@ def post_favorite_people():
     return jsonify(response_body), 201
 #-------------------------------------GET-----ALL FAVORITE PEOPLE------------------------------------------------#
 
-#https://redesigned-journey-pjp6gxqv494737x5w-3000.app.github.dev/favorite/people
+#https://redesigned-journey-pjp6gxqv494737x5w-3000.app.github.dev/favorite/people/1
 
-@app.route('/favorite/people', methods=['GET'])
-def get_favorite_people():
-    list_favorite_people = Favorite_People.query.all()    
+@app.route('/favorite/people/<int:user_id>', methods=['GET'])
+def get_favorite_people(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg = "User not found, please check.."), 402
+    list_favorite_people = Favorite_People.query.all()   
     obj_favorite_people = [favorite.serialize() for favorite in list_favorite_people]
-    #print(obj_favorite_people)
-    
+     
     response_body = {
+        "msg": "Here is all your favorite People, enjoy",
         "Favorite_people":obj_favorite_people
     }
     return jsonify(response_body), 200
